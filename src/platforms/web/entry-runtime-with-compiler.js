@@ -14,7 +14,7 @@ const idToTemplate = cached(id => {
   return el && el.innerHTML
 })
 
-// 扩展 $mount 函数
+// 扩展 $mount 函数: 使其能够编译 template/el 模板
 const mount = Vue.prototype.$mount
 Vue.prototype.$mount = function (
   el?: string | Element,
@@ -30,11 +30,14 @@ Vue.prototype.$mount = function (
     return this
   }
 
+  // 获取选项（传入参数）
   const options = this.$options
   // resolve template/el and convert to render function
+  // 若不存在 render 选项，则把 template/el 设置转化为 render
   if (!options.render) {
     let template = options.template
     if (template) {
+      // 解析 template
       if (typeof template === 'string') {
         if (template.charAt(0) === '#') {
           template = idToTemplate(template)
@@ -55,8 +58,10 @@ Vue.prototype.$mount = function (
         return this
       }
     } else if (el) {
+      // 否则解析 el
       template = getOuterHTML(el)
     }
+    // 如果是模板字符串，需要使用编译器编译
     if (template) {
       /* istanbul ignore if */
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -80,6 +85,7 @@ Vue.prototype.$mount = function (
       }
     }
   }
+  // 执行默认 $mount 函数
   return mount.call(this, el, hydrating)
 }
 
