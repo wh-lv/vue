@@ -144,6 +144,7 @@ function initData (vm: Component) {
         vm
       )
     } else if (!isReserved(key)) {
+      // data: { foo: 'foo' } -> vm.foo
       proxy(vm, `_data`, key)
     }
   }
