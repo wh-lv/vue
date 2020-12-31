@@ -49,12 +49,12 @@ export function initMixin (Vue: Class<Component>) {
     }
     // expose real self
     vm._self = vm
-    initLifecycle(vm)
-    initEvents(vm)
-    initRender(vm)
+    initLifecycle(vm) // $parent...
+    initEvents(vm) // 监听器初始化
+    initRender(vm) // vm.$createElement
     callHook(vm, 'beforeCreate')
     initInjections(vm) // resolve injections before data/props
-    initState(vm)
+    initState(vm) // 初始化组件各种状态data、methods、computed...
     initProvide(vm) // resolve provide after data/props
     callHook(vm, 'created')
 
