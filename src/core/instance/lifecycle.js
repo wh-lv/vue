@@ -58,17 +58,19 @@ export function initLifecycle (vm: Component) {
 export function lifecycleMixin (Vue: Class<Component>) {
   Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
     const vm: Component = this
-    const prevEl = vm.$el
-    const prevVnode = vm._vnode
+    const prevEl = vm.$el // 之前的真实 DOM
+    const prevVnode = vm._vnode // 之前的虚拟 DOM
     const restoreActiveInstance = setActiveInstance(vm)
     vm._vnode = vnode
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.
     if (!prevVnode) {
       // initial render
+      // 如果没有老的虚拟DOM，说明是在初始化
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
     } else {
       // updates
+      // 更新周期直接 diff，返回新的 DOM
       vm.$el = vm.__patch__(prevVnode, vnode)
     }
     restoreActiveInstance()
@@ -166,6 +168,7 @@ export function mountComponent (
   }
   callHook(vm, 'beforeMount')
 
+  // 定义更新函数
   let updateComponent
   /* istanbul ignore if */
   if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -187,6 +190,8 @@ export function mountComponent (
     }
   } else {
     updateComponent = () => {
+      // 首先执行 vm._render 函数 返回 VNode
+      // 然后 VNode 作为参数执行 _update 进行 DOM 更新
       vm._update(vm._render(), hydrating)
     }
   }
@@ -194,6 +199,8 @@ export function mountComponent (
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
+  // 创建一个组件相关的 Watcher 实例
+  // $Watcher/Watcher 选项会额外创建 Watcher
   new Watcher(vm, updateComponent, noop, {
     before () {
       if (vm._isMounted && !vm._isDestroyed) {

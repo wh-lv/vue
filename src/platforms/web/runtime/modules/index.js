@@ -5,6 +5,7 @@ import domProps from './dom-props'
 import style from './style'
 import transition from './transition'
 
+// 所有的属性操作
 export default [
   attrs,
   klass,
