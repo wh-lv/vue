@@ -46,7 +46,7 @@ export class Observer {
     def(value, '__ob__', this)
     if (Array.isArray(value)) {
       if (hasProto) {
-        protoAugment(value, arrayMethods)
+        protoAugment(value, arrayMethods) // 覆盖数组原型：value.__proto__ = arrayMethods
       } else {
         copyAugment(value, arrayMethods, arrayKeys)
       }
