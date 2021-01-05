@@ -530,6 +530,7 @@ export function createPatchFunction (backend) {
     // note we only do this if the vnode is cloned -
     // if the new node is not cloned it means the render functions have been
     // reset by the hot-reload-api and we need to do a proper re-render.
+    // 静态节点可复用，更新 componentInstance 跳过
     if (isTrue(vnode.isStatic) &&
       isTrue(oldVnode.isStatic) &&
       vnode.key === oldVnode.key &&
@@ -539,14 +540,18 @@ export function createPatchFunction (backend) {
       return
     }
 
+    // 属性更新：？？
     let i
     const data = vnode.data
     if (isDef(data) && isDef(i = data.hook) && isDef(i = i.prepatch)) {
       i(oldVnode, vnode)
     }
 
+    // 节点更新操作
     const oldCh = oldVnode.children
     const ch = vnode.children
+
+    // 属性更新：？？
     if (isDef(data) && isPatchable(vnode)) {
       for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)
       if (isDef(i = data.hook) && isDef(i = i.update)) i(oldVnode, vnode)
@@ -699,6 +704,7 @@ export function createPatchFunction (backend) {
 
   // 返回浏览器中使用的 patch 方法
   return function patch (oldVnode, vnode, hydrating, removeOnly) {
+    // 新 vnode 不存在：删除
     if (isUndef(vnode)) {
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
       return
@@ -707,16 +713,21 @@ export function createPatchFunction (backend) {
     let isInitialPatch = false
     const insertedVnodeQueue = []
 
+    // old 不存在：新增
     if (isUndef(oldVnode)) {
       // empty mount (likely as component), create new root element
       isInitialPatch = true
       createElm(vnode, insertedVnodeQueue)
     } else {
+      // 修改的操作
+      // old 如果拥有 nodetype 则是一个 dom
       const isRealElement = isDef(oldVnode.nodeType)
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
         // patch existing root node
+        // 自定义组件的补丁操作
         patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly)
       } else {
+        // 传入的是 dom
         if (isRealElement) {
           // mounting to a real element
           // check if this is server-rendered content and if we can perform
